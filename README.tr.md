@@ -53,9 +53,9 @@ Ardından:
 
     git clone https://github.com/tamerardall/dlna-cast.git
     cd dlna-cast
-    ./dlna-cast.py --list      # TV'niz listede görünmeli
+    ./main.py --list      # TV'niz listede görünmeli
 
-`./dlna-cast.py` doğrudan klasörden çalışır. Bunun yerine bir `dlna-cast` komutu isterseniz, sistemdeki PyGObject'i görecek şekilde kurun:
+`./main.py` doğrudan klasörden çalışır. Bunun yerine bir `dlna-cast` komutu isterseniz, sistemdeki PyGObject'i görecek şekilde kurun:
 
     pipx install --system-site-packages .
 
@@ -65,12 +65,12 @@ NVIDIA donanım kodlaması için tescilli sürücü gerekir; `nvcodec` eklentisi
 
 TV'yi açın, sonra:
 
-    ./dlna-cast.py             # ayna
-    ./dlna-cast.py --extend    # TV ikinci ekran
+    ./main.py             # ayna
+    ./main.py --extend    # TV ikinci ekran
 
 İlk çalıştırmada masaüstünüz hangi ekranın paylaşılacağını sorar. Seçim `~/.config/dlna-cast/` içinde saklanır; yeniden seçmek için bu klasörü silin. Ctrl+C ile durdurun (TV'ye de durdur komutu gider).
 
-Birden fazla TV varsa ya da otomatik bulma başarısızsa TV'nin IP'sini verin: `./dlna-cast.py 192.168.1.50`. Neyin bulunduğunu `./dlna-cast.py --list` gösterir.
+Birden fazla TV varsa ya da otomatik bulma başarısızsa TV'nin IP'sini verin: `./main.py 192.168.1.50`. Neyin bulunduğunu `./main.py --list` gösterir.
 
 ### Seçenekler
 
@@ -108,7 +108,7 @@ HTTP sunucusu `0.0.0.0:8765` üzerinde **kimlik doğrulaması olmadan** dinler. 
 
 ## Sorun giderme
 
-- **TV bulunamıyor:** TV açık ve aynı ağda/alt ağda mı? Bazı modemler Wi-Fi ile kablo arasında çok noktaya yayını (SSDP) engeller; IP'yi elle verin. `./dlna-cast.py --list` yanıt verenleri gösterir.
+- **TV bulunamıyor:** TV açık ve aynı ağda/alt ağda mı? Bazı modemler Wi-Fi ile kablo arasında çok noktaya yayını (SSDP) engeller; IP'yi elle verin. `./main.py --list` yanıt verenleri gösterir.
 - **TV'de görüntü yok:** günlükte `SetAVTransportURI -> 200` olmalı. Başka bir kod TV'nin akışı reddettiği anlamına gelir; günlükle birlikte issue açın. Samsung'da `Play -> 500` zararsızdır (TV kendiliğinden oynamaya başlar).
 - **Takılma:** TV'ye `ping` atıp paket kaybına bakın. Bilgisayarda 5 GHz Wi-Fi kullanın, TV'yi modeme yaklaştırın ya da `--bitrate`'i düşürün.
 - **Harekette kare hızı düşük:** günlükte hangi kodlayıcının seçildiğine bakın. NVIDIA'da `nvautogpuh265enc` kullanılmalı (`nvenc` bunu seçer); düz `nvh265enc` testlerde canlı kaynağı ~20 kare/sn'ye düşürdü.

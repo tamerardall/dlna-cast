@@ -53,9 +53,9 @@ Then:
 
     git clone https://github.com/tamerardall/dlna-cast.git
     cd dlna-cast
-    ./dlna-cast.py --list      # should show your TV
+    ./main.py --list      # should show your TV
 
-`./dlna-cast.py` runs straight from the checkout. To get a `dlna-cast` command instead, install it with access to the system PyGObject:
+`./main.py` runs straight from the checkout. To get a `dlna-cast` command instead, install it with access to the system PyGObject:
 
     pipx install --system-site-packages .
 
@@ -65,12 +65,12 @@ For NVIDIA hardware encoding you need the proprietary driver; the `nvcodec` plug
 
 Turn the TV on, then:
 
-    ./dlna-cast.py             # mirror
-    ./dlna-cast.py --extend    # TV as a second monitor
+    ./main.py             # mirror
+    ./main.py --extend    # TV as a second monitor
 
 On first start your desktop asks which screen to share. The choice is remembered in `~/.config/dlna-cast/`; delete that folder to choose again. Stop with Ctrl+C (the TV is told to stop as well).
 
-If there are several TVs, or discovery fails, pass the TV's IP: `./dlna-cast.py 192.168.1.50`. `./dlna-cast.py --list` shows what was found.
+If there are several TVs, or discovery fails, pass the TV's IP: `./main.py 192.168.1.50`. `./main.py --list` shows what was found.
 
 ### Options
 
@@ -108,7 +108,7 @@ The HTTP server listens on `0.0.0.0:8765` with **no authentication**. While it r
 
 ## Troubleshooting
 
-- **TV not found:** TV on and on the same network/subnet? Some routers block multicast (SSDP) between Wi-Fi and Ethernet; pass the IP by hand. `./dlna-cast.py --list` shows what answers.
+- **TV not found:** TV on and on the same network/subnet? Some routers block multicast (SSDP) between Wi-Fi and Ethernet; pass the IP by hand. `./main.py --list` shows what answers.
 - **Nothing on the TV:** check the log for `SetAVTransportURI -> 200`. Anything else means the TV refused the stream; please open an issue with the log. `Play -> 500` is harmless on Samsung (it starts playing by itself).
 - **Stutter:** `ping` the TV and look for packet loss. Use 5 GHz Wi-Fi for the computer, move the TV closer to the router, or lower `--bitrate`.
 - **Low frame rate under motion:** check which encoder the log says it chose. With NVIDIA use `nvautogpuh265enc` (what `nvenc` selects); the plain `nvh265enc` dropped the live source to ~20 fps in testing.
