@@ -3,7 +3,7 @@
 
 Pipeline: xdg-desktop-portal (screen capture) -> GStreamer (H.264/HEVC + AAC, MPEG-TS)
           -> local HTTP server -> UPnP AVTransport command to the TV (SetAVTransportURI + Play).
-Usage: yansit.py [--extend] [--list] [TV_IP]   (the TV is found automatically if no IP is given)
+Usage: dlna-cast.py [--extend] [--list] [TV_IP]   (the TV is found automatically if no IP is given)
   --extend: instead of mirroring, add the TV as a separate virtual monitor.
 """
 import argparse
@@ -53,10 +53,9 @@ def parse_args():
     p.add_argument("--list", action="store_true", help="list DLNA renderers on the network and exit")
     p.add_argument("--port", type=int, default=8765, help="HTTP port for the stream (default 8765)")
     p.add_argument("--fps", type=int, default=60, help="output frame rate (default 60)")
-    p.add_argument("--bitrate", type=int, default=int(os.environ.get("YANSIT_BITRATE", "8000")),
+    p.add_argument("--bitrate", type=int, default=8000,
                    help="video bitrate in kbit/s (default 8000)")
-    legacy = {"hevc": "nvenc", "h264": "x264"}.get(os.environ.get("YANSIT_KODEK", ""), "auto")
-    p.add_argument("--encoder", choices=["auto", "nvenc", "vaapi", "x264"], default=legacy,
+    p.add_argument("--encoder", choices=["auto", "nvenc", "vaapi", "x264"], default="auto",
                    help="video encoder (default: auto = nvenc > vaapi > x264)")
     return p.parse_args()
 
@@ -114,7 +113,7 @@ def find_tv(wanted_ip):
     if wanted_ip:  # not answering SSDP (e.g. another subnet): assume the Samsung layout
         log(f"{wanted_ip} did not answer discovery, trying the Samsung default control URL.")
         return wanted_ip, f"http://{wanted_ip}{SAMSUNG_CONTROL_PATH}"
-    log("No DLNA TV found. Is it on and on the same network? You can also pass its IP: yansit.py 192.168.1.50")
+    log("No DLNA TV found. Is it on and on the same network? You can also pass its IP: dlna-cast.py 192.168.1.50")
     sys.exit(1)
 
 
@@ -132,10 +131,8 @@ BITRATE = ARGS.bitrate  # kbit/s
 dropped = [0]  # TS chunks dropped because the TV fell behind (causes artifacts)
 counts = {"source": 0, "output": 0}  # real captured frames / frames sent to the TV
 gap = [0.0, None]  # longest gap in data sent to the TV in the last 5 s (s), time of the last data
-CONFIG_DIR = os.path.join(os.environ.get("XDG_CONFIG_HOME", os.path.expanduser("~/.config")), "ekran-yansit")
+CONFIG_DIR = os.path.join(os.environ.get("XDG_CONFIG_HOME", os.path.expanduser("~/.config")), "dlna-cast")
 STATE_FILE = os.path.join(CONFIG_DIR, "extend.json" if EXTEND else "mirror.json")
-LEGACY_STATE_FILE = os.path.expanduser(  # location used by older versions
-    "~/.config/ekran-yansit-genislet.json" if EXTEND else "~/.config/ekran-yansit.json")
 
 PORTAL = "org.freedesktop.portal.Desktop"
 PORTAL_PATH = "/org/freedesktop/portal/desktop"
@@ -150,7 +147,7 @@ counter = itertools.count(1)
 
 def portal_call(method, fixed, sig, options):
     """Calls a portal method, waits for the Request.Response signal, returns the results."""
-    token = f"yansit{next(counter)}"
+    token = f"dlnacast{next(counter)}"
     options["handle_token"] = GLib.Variant("s", token)
     path = f"/org/freedesktop/portal/desktop/request/{sender}/{token}"
     loop = GLib.MainLoop()
@@ -174,13 +171,11 @@ def portal_call(method, fixed, sig, options):
 
 
 def load_token():
-    for path in (STATE_FILE, LEGACY_STATE_FILE):
-        try:
-            with open(path) as f:
-                return json.load(f).get("restore_token")
-        except (OSError, ValueError):
-            pass
-    return None
+    try:
+        with open(STATE_FILE) as f:
+            return json.load(f).get("restore_token")
+    except (OSError, ValueError):
+        return None
 
 
 def save_token(tok):
@@ -191,7 +186,7 @@ def save_token(tok):
 
 def open_screencast():
     res = portal_call("CreateSession", (), "(a{sv})",
-                      {"session_handle_token": GLib.Variant("s", "yansit_session")})
+                      {"session_handle_token": GLib.Variant("s", "dlnacast_session")})
     session = res["session_handle"]
     opts = {
         "types": GLib.Variant("u", 4 if EXTEND else 1),  # 1 = existing monitor, 4 = virtual monitor (extend)
@@ -214,7 +209,16 @@ def open_screencast():
         GLib.Variant("(oa{sv})", (session, {})), GLib.VariantType("(h)"),
         Gio.DBusCallFlags.NONE, -1, None, None)
     fd = fds.get(reply.unpack()[0])
-    return node_id, fd
+    return session, node_id, fd
+
+
+def close_session(session):
+    """Ends the screen cast explicitly; KDE may otherwise keep the virtual monitor after we exit."""
+    try:
+        bus.call_sync(PORTAL, session, "org.freedesktop.portal.Session", "Close",
+                      None, None, Gio.DBusCallFlags.NONE, 2000, None)
+    except GLib.Error as e:
+        log("Could not close the screen sharing session:", e.message)
 
 
 def arrange_outputs():
@@ -439,7 +443,7 @@ def tv_state():
 
 def main():
     Gst.init(None)
-    node_id, fd = open_screencast()
+    session, node_id, fd = open_screencast()
     log(f"Screen capture ready (PipeWire node {node_id}).")
     if EXTEND:
         arrange_outputs()
@@ -466,7 +470,7 @@ def main():
 
     GLib.timeout_add_seconds(5, stats)
 
-    url = f"http://{local_ip()}:{PORT}/ekran.ts"
+    url = f"http://{local_ip()}:{PORT}/screen.ts"
     log("Stream URL:", url)
 
     def tv_play_safe(u):
@@ -486,7 +490,7 @@ def main():
             return True
         if ip != cur_ip[0]:
             cur_ip[0] = ip
-            new_url = f"http://{ip}:{PORT}/ekran.ts"
+            new_url = f"http://{ip}:{PORT}/screen.ts"
             log("Local IP changed, new stream URL:", new_url)
             threading.Thread(target=tv_play_safe, args=(new_url,), daemon=True).start()
         return True
@@ -503,7 +507,7 @@ def main():
                 if bad[0] >= 2:  # not playing for 10 s
                     bad[0] = 0
                     log(f"TV is not playing the stream ({state}), restarting.")
-                    tv_play_safe(f"http://{cur_ip[0]}:{PORT}/ekran.ts")
+                    tv_play_safe(f"http://{cur_ip[0]}:{PORT}/screen.ts")
             else:  # PLAYING, TRANSITIONING (buffering) or unreachable: leave it alone
                 bad[0] = 0
         threading.Thread(target=check, daemon=True).start()
@@ -523,6 +527,7 @@ def main():
     unix_signal_add(GLib.PRIORITY_DEFAULT, signal.SIGTERM, stop)
     loop.run()
     pipe.set_state(Gst.State.NULL)
+    close_session(session)
 
 
 if __name__ == "__main__":

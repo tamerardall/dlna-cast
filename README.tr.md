@@ -1,10 +1,10 @@
-# ekran-yansit
+# dlna-cast
 
 [English](README.md) | **Türkçe**
 
 Linux masaüstünüzü DLNA üzerinden akıllı TV'ye sesiyle birlikte yansıtır, isterseniz TV'yi ikinci ekran olarak kullanır. Miracast, Chromecast ya da TV'ye uygulama gerekmez; TV'nin kendi DLNA oynatıcısı kullanılır.
 
-Tek Python dosyası: `yansit.py`. Ekranı Wayland ekran paylaşımı portalıyla yakalar, GStreamer ile sıkıştırır ve TV'de canlı MPEG-TS akışı olarak oynatır.
+Tek Python dosyası: `dlna-cast.py`. Ekranı Wayland ekran paylaşımı portalıyla yakalar, GStreamer ile sıkıştırır ve TV'de canlı MPEG-TS akışı olarak oynatır.
 
 - **Ayna modu:** TV ekranlarınızdan birini gösterir.
 - **Genişletme modu** (`--extend`): TV ayrı bir sanal monitör olur, pencereleri oraya sürüklersiniz.
@@ -51,9 +51,9 @@ Bağımlılıkları kurun, sonra betiği indirin:
 
 Ardından:
 
-    git clone https://github.com/tamerardall/ekran-yansit.git
-    cd ekran-yansit
-    ./yansit.py --list      # TV'niz listede görünmeli
+    git clone https://github.com/tamerardall/dlna-cast.git
+    cd dlna-cast
+    ./dlna-cast.py --list      # TV'niz listede görünmeli
 
 NVIDIA donanım kodlaması için tescilli sürücü gerekir; `nvcodec` eklentisi plugins-bad içindedir. Intel/AMD için `va` eklentisi (plugins-bad) ve ekran kartınızın VA-API sürücüsü gerekir.
 
@@ -61,12 +61,12 @@ NVIDIA donanım kodlaması için tescilli sürücü gerekir; `nvcodec` eklentisi
 
 TV'yi açın, sonra:
 
-    ./yansit.py             # ayna
-    ./yansit.py --extend    # TV ikinci ekran
+    ./dlna-cast.py             # ayna
+    ./dlna-cast.py --extend    # TV ikinci ekran
 
-İlk çalıştırmada masaüstünüz hangi ekranın paylaşılacağını sorar. Seçim `~/.config/ekran-yansit/` içinde saklanır; yeniden seçmek için bu klasörü silin. Ctrl+C ile durdurun (TV'ye de durdur komutu gider).
+İlk çalıştırmada masaüstünüz hangi ekranın paylaşılacağını sorar. Seçim `~/.config/dlna-cast/` içinde saklanır; yeniden seçmek için bu klasörü silin. Ctrl+C ile durdurun (TV'ye de durdur komutu gider).
 
-Birden fazla TV varsa ya da otomatik bulma başarısızsa TV'nin IP'sini verin: `./yansit.py 192.168.1.50`. Neyin bulunduğunu `./yansit.py --list` gösterir.
+Birden fazla TV varsa ya da otomatik bulma başarısızsa TV'nin IP'sini verin: `./dlna-cast.py 192.168.1.50`. Neyin bulunduğunu `./dlna-cast.py --list` gösterir.
 
 ### Seçenekler
 
@@ -100,11 +100,11 @@ Birden fazla TV varsa ya da otomatik bulma başarısızsa TV'nin IP'sini verin: 
 
 ## Güvenlik
 
-HTTP sunucusu `0.0.0.0:8765` üzerinde **kimlik doğrulaması olmadan** dinler. Çalıştığı sürece aynı ağdaki (Tailscale gibi VPN'ler dahil) herkes `http://<ip-adresiniz>:8765/ekran.ts` adresinden ekranınızı izleyebilir. Kullanmadığınızda durdurun, güvenilmeyen ağlarda çalıştırmayın.
+HTTP sunucusu `0.0.0.0:8765` üzerinde **kimlik doğrulaması olmadan** dinler. Çalıştığı sürece aynı ağdaki (Tailscale gibi VPN'ler dahil) herkes `http://<ip-adresiniz>:8765/screen.ts` adresinden ekranınızı izleyebilir. Kullanmadığınızda durdurun, güvenilmeyen ağlarda çalıştırmayın.
 
 ## Sorun giderme
 
-- **TV bulunamıyor:** TV açık ve aynı ağda/alt ağda mı? Bazı modemler Wi-Fi ile kablo arasında çok noktaya yayını (SSDP) engeller; IP'yi elle verin. `./yansit.py --list` yanıt verenleri gösterir.
+- **TV bulunamıyor:** TV açık ve aynı ağda/alt ağda mı? Bazı modemler Wi-Fi ile kablo arasında çok noktaya yayını (SSDP) engeller; IP'yi elle verin. `./dlna-cast.py --list` yanıt verenleri gösterir.
 - **TV'de görüntü yok:** günlükte `SetAVTransportURI -> 200` olmalı. Başka bir kod TV'nin akışı reddettiği anlamına gelir; günlükle birlikte issue açın. Samsung'da `Play -> 500` zararsızdır (TV kendiliğinden oynamaya başlar).
 - **Takılma:** TV'ye `ping` atıp paket kaybına bakın. Bilgisayarda 5 GHz Wi-Fi kullanın, TV'yi modeme yaklaştırın ya da `--bitrate`'i düşürün.
 - **Harekette kare hızı düşük:** günlükte hangi kodlayıcının seçildiğine bakın. NVIDIA'da `nvautogpuh265enc` kullanılmalı (`nvenc` bunu seçer); düz `nvh265enc` testlerde canlı kaynağı ~20 kare/sn'ye düşürdü.

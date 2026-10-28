@@ -1,10 +1,10 @@
-# ekran-yansit
+# dlna-cast
 
 **English** | [Türkçe](README.tr.md)
 
 Mirror your Linux desktop (or use the TV as a second monitor) to a smart TV over DLNA, with sound. No Miracast, no Chromecast, no app on the TV: it uses the TV's built-in DLNA media player.
 
-One Python file, `yansit.py`. It captures the screen through the Wayland screen-cast portal, encodes it with GStreamer and plays it on the TV as a live MPEG-TS stream.
+One Python file, `dlna-cast.py`. It captures the screen through the Wayland screen-cast portal, encodes it with GStreamer and plays it on the TV as a live MPEG-TS stream.
 
 - **Mirror mode:** the TV shows one of your screens.
 - **Extend mode** (`--extend`): the TV becomes a separate virtual monitor; drag windows to it.
@@ -51,9 +51,9 @@ Install the dependencies, then download the script:
 
 Then:
 
-    git clone https://github.com/tamerardall/ekran-yansit.git
-    cd ekran-yansit
-    ./yansit.py --list      # should show your TV
+    git clone https://github.com/tamerardall/dlna-cast.git
+    cd dlna-cast
+    ./dlna-cast.py --list      # should show your TV
 
 For NVIDIA hardware encoding you need the proprietary driver; the `nvcodec` plugin is part of plugins-bad. For Intel/AMD, the `va` plugin (plugins-bad) plus the VA-API driver for your GPU.
 
@@ -61,12 +61,12 @@ For NVIDIA hardware encoding you need the proprietary driver; the `nvcodec` plug
 
 Turn the TV on, then:
 
-    ./yansit.py             # mirror
-    ./yansit.py --extend    # TV as a second monitor
+    ./dlna-cast.py             # mirror
+    ./dlna-cast.py --extend    # TV as a second monitor
 
-On first start your desktop asks which screen to share. The choice is remembered in `~/.config/ekran-yansit/`; delete that folder to choose again. Stop with Ctrl+C (the TV is told to stop as well).
+On first start your desktop asks which screen to share. The choice is remembered in `~/.config/dlna-cast/`; delete that folder to choose again. Stop with Ctrl+C (the TV is told to stop as well).
 
-If there are several TVs, or discovery fails, pass the TV's IP: `./yansit.py 192.168.1.50`. `./yansit.py --list` shows what was found.
+If there are several TVs, or discovery fails, pass the TV's IP: `./dlna-cast.py 192.168.1.50`. `./dlna-cast.py --list` shows what was found.
 
 ### Options
 
@@ -100,11 +100,11 @@ Every 5 seconds:
 
 ## Security
 
-The HTTP server listens on `0.0.0.0:8765` with **no authentication**. While it runs, anyone on the same network (including VPNs like Tailscale) can watch your screen at `http://<your-ip>:8765/ekran.ts`. Stop it when you're not using it and don't run it on untrusted networks.
+The HTTP server listens on `0.0.0.0:8765` with **no authentication**. While it runs, anyone on the same network (including VPNs like Tailscale) can watch your screen at `http://<your-ip>:8765/screen.ts`. Stop it when you're not using it and don't run it on untrusted networks.
 
 ## Troubleshooting
 
-- **TV not found:** TV on and on the same network/subnet? Some routers block multicast (SSDP) between Wi-Fi and Ethernet; pass the IP by hand. `./yansit.py --list` shows what answers.
+- **TV not found:** TV on and on the same network/subnet? Some routers block multicast (SSDP) between Wi-Fi and Ethernet; pass the IP by hand. `./dlna-cast.py --list` shows what answers.
 - **Nothing on the TV:** check the log for `SetAVTransportURI -> 200`. Anything else means the TV refused the stream; please open an issue with the log. `Play -> 500` is harmless on Samsung (it starts playing by itself).
 - **Stutter:** `ping` the TV and look for packet loss. Use 5 GHz Wi-Fi for the computer, move the TV closer to the router, or lower `--bitrate`.
 - **Low frame rate under motion:** check which encoder the log says it chose. With NVIDIA use `nvautogpuh265enc` (what `nvenc` selects); the plain `nvh265enc` dropped the live source to ~20 fps in testing.

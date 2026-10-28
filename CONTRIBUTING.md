@@ -8,7 +8,7 @@ Most problems depend on the setup, so please include:
 
 - Distribution and desktop (e.g. Fedora 44, KDE Plasma 6.5, Wayland)
 - GPU and the encoder the log says it chose (`Video encoder: ...`)
-- TV brand and model (`./yansit.py --list` shows its name)
+- TV brand and model (`./dlna-cast.py --list` shows its name)
 - Mirror or `--extend` mode
 - The log from start until the problem, including a few `fps:` lines
 
@@ -17,5 +17,5 @@ Most problems depend on the setup, so please include:
 ## Pull requests
 
 - Keep it a single dependency-light script; the standard library plus PyGObject/GStreamer.
-- Run `ruff check --line-length 120 yansit.py` before sending.
+- Run `ruff check --line-length 120 dlna-cast.py` before sending.
 - Describe how you tested it (which TV, desktop, encoder). There are no automated tests that can cover a TV, so a short note on what you saw is the test.
