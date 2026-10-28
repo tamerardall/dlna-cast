@@ -4,7 +4,7 @@
 
 Mirror your Linux desktop (or use the TV as a second monitor) to a smart TV over DLNA, with sound. No Miracast, no Chromecast, no app on the TV: it uses the TV's built-in DLNA media player.
 
-One Python file, `dlna-cast.py`. It captures the screen through the Wayland screen-cast portal, encodes it with GStreamer and plays it on the TV as a live MPEG-TS stream.
+A small Python package with no dependencies beyond PyGObject and GStreamer. It captures the screen through the Wayland screen-cast portal, encodes it with GStreamer and plays it on the TV as a live MPEG-TS stream.
 
 - **Mirror mode:** the TV shows one of your screens.
 - **Extend mode** (`--extend`): the TV becomes a separate virtual monitor; drag windows to it.
@@ -54,6 +54,10 @@ Then:
     git clone https://github.com/tamerardall/dlna-cast.git
     cd dlna-cast
     ./dlna-cast.py --list      # should show your TV
+
+`./dlna-cast.py` runs straight from the checkout. To get a `dlna-cast` command instead, install it with access to the system PyGObject:
+
+    pipx install --system-site-packages .
 
 For NVIDIA hardware encoding you need the proprietary driver; the `nvcodec` plugin is part of plugins-bad. For Intel/AMD, the `va` plugin (plugins-bad) plus the VA-API driver for your GPU.
 

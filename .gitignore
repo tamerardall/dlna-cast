@@ -3,3 +3,5 @@ __pycache__/
 *.ts
 *.png
 .ruff_cache/
+build/
+*.egg-info/

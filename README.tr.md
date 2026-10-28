@@ -4,7 +4,7 @@
 
 Linux masaüstünüzü DLNA üzerinden akıllı TV'ye sesiyle birlikte yansıtır, isterseniz TV'yi ikinci ekran olarak kullanır. Miracast, Chromecast ya da TV'ye uygulama gerekmez; TV'nin kendi DLNA oynatıcısı kullanılır.
 
-Tek Python dosyası: `dlna-cast.py`. Ekranı Wayland ekran paylaşımı portalıyla yakalar, GStreamer ile sıkıştırır ve TV'de canlı MPEG-TS akışı olarak oynatır.
+PyGObject ve GStreamer dışında bağımlılığı olmayan küçük bir Python paketi. Ekranı Wayland ekran paylaşımı portalıyla yakalar, GStreamer ile sıkıştırır ve TV'de canlı MPEG-TS akışı olarak oynatır.
 
 - **Ayna modu:** TV ekranlarınızdan birini gösterir.
 - **Genişletme modu** (`--extend`): TV ayrı bir sanal monitör olur, pencereleri oraya sürüklersiniz.
@@ -54,6 +54,10 @@ Ardından:
     git clone https://github.com/tamerardall/dlna-cast.git
     cd dlna-cast
     ./dlna-cast.py --list      # TV'niz listede görünmeli
+
+`./dlna-cast.py` doğrudan klasörden çalışır. Bunun yerine bir `dlna-cast` komutu isterseniz, sistemdeki PyGObject'i görecek şekilde kurun:
+
+    pipx install --system-site-packages .
 
 NVIDIA donanım kodlaması için tescilli sürücü gerekir; `nvcodec` eklentisi plugins-bad içindedir. Intel/AMD için `va` eklentisi (plugins-bad) ve ekran kartınızın VA-API sürücüsü gerekir.
 

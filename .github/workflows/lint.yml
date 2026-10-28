@@ -10,5 +10,5 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: python -m py_compile dlna-cast.py
-      - run: pipx run ruff check --line-length 120 dlna-cast.py
+      - run: python -m compileall -q src dlna-cast.py
+      - run: pipx run ruff check .

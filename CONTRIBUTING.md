@@ -16,6 +16,7 @@ Most problems depend on the setup, so please include:
 
 ## Pull requests
 
-- Keep it a single dependency-light script; the standard library plus PyGObject/GStreamer.
-- Run `ruff check --line-length 120 dlna-cast.py` before sending.
+- Keep it dependency-light: the standard library plus PyGObject/GStreamer.
+- The code lives in `src/dlna_cast/`: `upnp` (finding and controlling the TV), `portal` (screen capture), `pipeline` (GStreamer), `server` (HTTP stream), `kde` (extend-mode layout), `cli` (options and main loop). `dlna-cast.py` only starts it from a checkout.
+- Run `ruff check .` before sending.
 - Describe how you tested it (which TV, desktop, encoder). There are no automated tests that can cover a TV, so a short note on what you saw is the test.
