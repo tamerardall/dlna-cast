@@ -139,7 +139,10 @@ class TV:
         if st != 200:
             return None
         if parse_transport_state:
-            return parse_transport_state(txt)
+            state = parse_transport_state(txt)
+            if state is None:  # the watchdog treats this as "leave it alone", so make it visible
+                log("Could not read the TV's transport state from its reply:", txt[:200])
+            return state
         if "<CurrentTransportState>" not in txt:
             return None
         return txt.split("<CurrentTransportState>")[1].split("<")[0]
