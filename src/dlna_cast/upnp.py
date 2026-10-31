@@ -10,6 +10,11 @@ from xml.sax.saxutils import escape
 
 from dlna_cast.log import log
 
+try:
+    from dlna_cast_core import parse_description, parse_transport_state
+except ImportError:  # optional native module (see rust/), the Python parsing below is the fallback
+    parse_description = parse_transport_state = None
+
 SAMSUNG_CONTROL_PATH = ":9197/upnp/control/AVTransport1"  # used when the device description can't be read
 AVT = "urn:schemas-upnp-org:service:AVTransport:1"
 
@@ -39,8 +44,14 @@ def describe(location):
     """Reads the device description; returns (friendly name, AVTransport control URL) or None."""
     try:
         with urllib.request.urlopen(location, timeout=4) as r:
-            root = ET.fromstring(r.read())
-    except (OSError, ET.ParseError):
+            body = r.read()
+    except OSError:
+        return None
+    if parse_description:
+        return parse_description(body.decode(errors="replace"), location)
+    try:
+        root = ET.fromstring(body)
+    except ET.ParseError:
         return None
     ns = {"d": "urn:schemas-upnp-org:device-1-0"}
     name = root.findtext(".//d:friendlyName", "?", ns)
@@ -125,7 +136,11 @@ class TV:
             st, txt = self.soap("GetTransportInfo", "<InstanceID>0</InstanceID>", timeout=4)
         except OSError:
             return None
-        if st != 200 or "<CurrentTransportState>" not in txt:
+        if st != 200:
+            return None
+        if parse_transport_state:
+            return parse_transport_state(txt)
+        if "<CurrentTransportState>" not in txt:
             return None
         return txt.split("<CurrentTransportState>")[1].split("<")[0]
 
