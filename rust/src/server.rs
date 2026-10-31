@@ -37,7 +37,10 @@ impl Shared {
 }
 
 fn serve_client(stream: TcpStream, shared: Arc<Shared>) {
-    let peer = stream.peer_addr().map(|a| a.ip().to_string()).unwrap_or_default();
+    let peer = stream
+        .peer_addr()
+        .map(|a| a.ip().to_string())
+        .unwrap_or_default();
     let mut reader = BufReader::new(&stream);
     let mut request_line = String::new();
     if reader.read_line(&mut request_line).unwrap_or(0) == 0 {

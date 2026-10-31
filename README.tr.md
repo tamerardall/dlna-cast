@@ -61,6 +61,18 @@ Ardından:
 
 NVIDIA donanım kodlaması için tescilli sürücü gerekir; `nvcodec` eklentisi plugins-bad içindedir. Intel/AMD için `va` eklentisi (plugins-bad) ve ekran kartınızın VA-API sürücüsü gerekir.
 
+### İsteğe bağlı: Rust modülü
+
+TV'nin yanıtlarını okumak ve yayını TV'ye iletmek küçük bir Rust eklentisinde (`rust/`) de çalışabilir. Zorunlu değil: olmadan dlna-cast Python kodunu kullanır ve aynı şekilde çalışır. Görüntü yine GStreamer ile kodlanır, bu yüzden görüntü ve gecikme değişmez; sentetik bir testte (8 Mbit/s, tek istemci) yayın sunucusu tek çekirdeğin yaklaşık 3 yüzde puan daha azını kullandı (kabaca %10'dan %8'e). Rust ayrıştırıcıları Python'unkinden daha katıdır: TV'den bozuk bir yanıt gelirse yarım okumak yerine log'a yazılır ve yok sayılır.
+
+Rust araç zinciri ([rustup](https://rustup.rs)) ve [maturin](https://www.maturin.rs) gerekir (`uv tool install maturin`). Depo klasöründen:
+
+    uv venv --system-site-packages --python /usr/bin/python3 ~/.venvs/dlna-cast
+    VIRTUAL_ENV=~/.venvs/dlna-cast maturin develop --release --uv --manifest-path rust/Cargo.toml
+    PYTHONPATH=src ~/.venvs/dlna-cast/bin/python -m dlna_cast
+
+`--system-site-packages`, ortamın sistemdeki PyGObject'i görmesini sağlar. Modülün kullanıldığını doğrulamak için o ortamda `python -c "import dlna_cast_core"` çalışmalıdır.
+
 ## Kullanım
 
 TV'yi açın, sonra:

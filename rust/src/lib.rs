@@ -39,8 +39,12 @@ fn parse_description(xml: &str, location: &str) -> Option<(String, String)> {
         .find(|n| n.tag_name().name() == "friendlyName")
         .and_then(|n| n.text())
         .unwrap_or("?");
-    for svc in doc.descendants().filter(|n| n.tag_name().name() == "service") {
-        let is_avtransport = child_text(svc, "serviceType").is_some_and(|t| t.starts_with(AVTRANSPORT_PREFIX));
+    for svc in doc
+        .descendants()
+        .filter(|n| n.tag_name().name() == "service")
+    {
+        let is_avtransport =
+            child_text(svc, "serviceType").is_some_and(|t| t.starts_with(AVTRANSPORT_PREFIX));
         if !is_avtransport {
             continue;
         }
