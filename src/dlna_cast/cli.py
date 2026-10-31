@@ -19,7 +19,7 @@ from dlna_cast import kde, upnp
 from dlna_cast.log import log
 from dlna_cast.pipeline import Stats, build_pipeline
 from dlna_cast.portal import ScreenCast
-from dlna_cast.server import StreamServer
+from dlna_cast.server import create_server
 
 
 def parse_args(argv=None):
@@ -99,7 +99,7 @@ def main(argv=None):
     if args.extend:
         kde.arrange_outputs()
 
-    server = StreamServer(args.port)
+    server = create_server(args.port)
     server.start()
     stats = Stats()
     pipe = build_pipeline(node_id, fd, fps=args.fps, bitrate=args.bitrate, encoder=args.encoder,

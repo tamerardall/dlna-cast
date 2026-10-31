@@ -18,5 +18,6 @@ Most problems depend on the setup, so please include:
 
 - Keep it dependency-light: the standard library plus PyGObject/GStreamer.
 - The code lives in `src/dlna_cast/`: `upnp` (finding and controlling the TV), `portal` (screen capture), `pipeline` (GStreamer), `server` (HTTP stream), `kde` (extend-mode layout), `cli` (options and main loop). `main.py` only starts it from a checkout.
-- Run `ruff check .` before sending.
+- `rust/` is an optional native extension (PyO3) with Rust versions of the TV reply parsers and the stream server. Keep the Python code working without it: `upnp.py` and `server.py` fall back to it when `dlna_cast_core` isn't installed.
+- Run `ruff check .` before sending. If you touched `rust/`, also `cargo fmt --manifest-path rust/Cargo.toml` and `cargo clippy --manifest-path rust/Cargo.toml -- -D warnings`.
 - Describe how you tested it (which TV, desktop, encoder). There are no automated tests that can cover a TV, so a short note on what you saw is the test.

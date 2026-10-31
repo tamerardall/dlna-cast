@@ -66,3 +66,12 @@ class StreamServer(ThreadingHTTPServer):
                     q.put_nowait(data)
                 except queue.Full:
                     self.dropped += 1
+
+
+def create_server(port):
+    """The native fan-out when dlna_cast_core provides one, otherwise the Python StreamServer."""
+    try:
+        from dlna_cast_core import StreamServer as NativeStreamServer
+    except ImportError:
+        return StreamServer(port)
+    return NativeStreamServer(port, log)
