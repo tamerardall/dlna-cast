@@ -1,6 +1,8 @@
 //! Native helpers for dlna-cast, imported from Python as `dlna_cast_core`.
 use pyo3::prelude::*;
 
+mod server;
+
 /// Returns the CurrentTransportState value (PLAYING, STOPPED, ...) from a GetTransportInfo
 /// response, or None if the XML is malformed or the element is missing or empty.
 #[pyfunction]
@@ -54,5 +56,6 @@ fn parse_description(xml: &str, location: &str) -> Option<(String, String)> {
 #[pymodule]
 fn dlna_cast_core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(parse_transport_state, m)?)?;
-    m.add_function(wrap_pyfunction!(parse_description, m)?)
+    m.add_function(wrap_pyfunction!(parse_description, m)?)?;
+    m.add_class::<server::StreamServer>()
 }
