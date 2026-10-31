@@ -10,3 +10,4 @@ crate-type = ["cdylib"]
 [dependencies]
 pyo3 = { version = "0.30.1", features = ["extension-module"] }
 roxmltree = "0.21.2"
+url = "2.5.8"
