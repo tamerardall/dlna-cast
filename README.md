@@ -61,6 +61,18 @@ Then:
 
 For NVIDIA hardware encoding you need the proprietary driver; the `nvcodec` plugin is part of plugins-bad. For Intel/AMD, the `va` plugin (plugins-bad) plus the VA-API driver for your GPU.
 
+### Optional: native Rust module
+
+Reading the TV's replies and handing the stream to the TV can run in a small Rust extension (`rust/`). It is optional: without it dlna-cast uses the Python code and works the same. The video itself is still encoded by GStreamer, so the picture and the latency don't change; in a synthetic test (8 Mbit/s, one client) the stream server used about 3 percentage points less of one CPU core (roughly 10% down to 8%). The Rust parsers are stricter than the Python ones: a malformed reply from the TV is logged and ignored instead of being half-read.
+
+You need a Rust toolchain ([rustup](https://rustup.rs)) and [maturin](https://www.maturin.rs) (`uv tool install maturin`). From the checkout:
+
+    uv venv --system-site-packages --python /usr/bin/python3 ~/.venvs/dlna-cast
+    VIRTUAL_ENV=~/.venvs/dlna-cast maturin develop --release --uv --manifest-path rust/Cargo.toml
+    PYTHONPATH=src ~/.venvs/dlna-cast/bin/python -m dlna_cast
+
+`--system-site-packages` is what lets the environment see the system PyGObject. To check that the module is in use, `python -c "import dlna_cast_core"` must work in that environment.
+
 ## Usage
 
 Turn the TV on, then:
